@@ -1,0 +1,118 @@
+body {
+	background: linear-gradient(90deg,rgba(81, 201, 113, 1) 0%, rgba(116, 214, 142, 1) 50%, rgba(167, 232, 181, 1) 100%) no-repeat;
+	min-height: 100vh;
+	background-color: rgba(167, 232, 181, 1);
+}
+
+.board[data-layout="row"] > div {
+	width: calc(100% / var(--cols));
+	box-sizing: border-box;
+}
+
+.board[data-layout="column"] > div {
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.board {
+	display: flex;
+	gap: 1.5rem;
+	padding: 1.5rem;
+	align-items: flex-start;
+}
+
+.board[data-layout="row"] {
+    justify-content: center;
+    flex-direction: row;
+}
+
+.board[data-layout="column"] {
+    flex-direction: column;
+    align-items: center;
+}
+
+.title {
+	text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+	letter-spacing: -0.5px;
+	text-align: center;
+	color: white;
+	font-size: 2rem;
+	margin: 1rem 0rem -0.5rem 0rem;
+}
+
+.loading {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	min-height: 100vh;
+}
+
+.spinner {
+	width: 40px;
+	height: 40px;
+	border: 4px solid rgba(255, 255, 255, 0.3);
+	border-top-color: #fff;
+	border-radius: 50%;
+	animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.error {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	height: 98vh;
+}
+
+.errorCard {
+	background: white;
+	border-radius: 12px;
+	padding: 2rem;
+	max-width: 460px;
+	width: 100%;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+	text-align: center;
+}
+
+.errorTitle {
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: #1e293b;
+	margin: 0 0 0.75rem;
+}
+
+.errorMessage {
+	color: #64748b;
+	font-size: 0.9rem;
+	line-height: 1.5;
+	margin: 0 0 1.5rem;
+	padding: 0.75rem 1rem;
+	background: #f8fafc;
+	border-radius: 6px;
+	border: 1px solid #e2e8f0;
+	text-align: left;
+	font-family: ui-monospace, monospace;
+	word-break: break-word;
+}
+
+.retryButton {
+	background: #51c971;
+	color: white;
+	border: none;
+	border-radius: 8px;
+	padding: 0.75rem 2rem;
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background 0.15s;
+}
+
+.retryButton:hover {
+	background: #3da85e;
+}
