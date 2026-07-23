@@ -1,5 +1,5 @@
 # Task Board
-Task Board is a task management app built with React and dnd-kit. Tasks are represented as cards and are dragged between columns to change their status, much like a kanban board. The board's tasks are saved and restored through a Supabase table.
+Task Board is a task management app built with React and dnd-kit. Tasks are represented as cards and are dragged between columns to change their status, much like a kanban board, and are saved through Supabase. Tasks may also have a description, due date, and tags.
 
 Desktop | Mobile
 :------:|:------:
@@ -10,43 +10,61 @@ Desktop | Mobile
     - Title
     - Description (optional)
     - Due date (optional)
+    - Tags (optional)
 - Drag and drop cards between columns
     - Automatically creates "To Do", "In Progress", "In Review", and "Done" columns
 - Due date indicator
     - Tasks due tomorrow have their due date highlighted in yellow
     - Tasks due today have their due date highlighted in orange
     - Tasks due before today have their due date highlighted in red
+- Filter your board by tags
 - Task persistence
 - Board summary
-    - Shows the total number of tasks, the number of completed tasks, and the number of non-completed overdue tasks
+    - Shows the number of total tasks, completed tasks, and non-completed overdue tasks
 - Responsive layout
     - Columns are displayed horizontally on larger screens in traditional kanban style
     - Columns are displayed vertically on smaller screens to better utilize the limited space
 
 # Getting Started
 
-1. Clone this repository
+1. Clone this repository.
 
-2. Install dependencies with `npm install`
+2. Install dependencies with `npm install`.
 
-3. Configure a Supabase table named 'tasks' with the following schema and RLS policies.
+3. Configure Supabase with the following schema and RLS policies.
 
-    | column_name | data_type                   | is_nullable | column_default    |
-    | ----------- | --------------------------- | ----------- | ----------------- |
-    | id          | uuid                        | NO          | gen_random_uuid() |
-    | title       | text                        | NO          | ''::text          |
-    | status      | text                        | NO          | 'todo'::text      |
-    | user_id     | uuid                        | NO          | auth.uid()        |
-    | created_at  | timestamp without time zone | NO          | now()             |
-    | description | text                        | YES         | null              |
-    | due_date    | date                        | YES         | null              |
+    ```sql
+    CREATE TABLE public.tasks (
+      id uuid NOT NULL DEFAULT gen_random_uuid(),
+      title text NOT NULL DEFAULT ''::text,
+      status text NOT NULL DEFAULT 'todo'::text,
+      user_id uuid NOT NULL DEFAULT auth.uid(),
+      created_at timestamp without time zone NOT NULL DEFAULT now(),
+      description text DEFAULT ''::text,
+      due_date date,
+      tags ARRAY,
+      CONSTRAINT tasks_pkey PRIMARY KEY (id)
+    );
+    ```
 
-    | tablename | policyname                       | permissive | roles    | cmd    | qual                   | with_check             |
-    | --------- | -------------------------------- | ---------- | -------- | ------ | ---------------------- | ---------------------- |
-    | tasks     | Users can view their own tasks   | PERMISSIVE | {public} | SELECT | (auth.uid() = user_id) | null                   |
-    | tasks     | Users can insert their own tasks | PERMISSIVE | {public} | INSERT | null                   | (auth.uid() = user_id) |
-    | tasks     | Users can update their own tasks | PERMISSIVE | {public} | UPDATE | (auth.uid() = user_id) | (auth.uid() = user_id) |
-    | tasks     | Users can delete their own tasks | PERMISSIVE | {public} | DELETE | (auth.uid() = user_id) | null                   |
+    ```sql
+    CREATE POLICY "Users can view their own tasks"
+      ON public.tasks FOR SELECT
+      USING (auth.uid() = user_id);
+
+    CREATE POLICY "Users can insert their own tasks"
+      ON public.tasks FOR INSERT
+      WITH CHECK (auth.uid() = user_id);
+
+    CREATE POLICY "Users can update their own tasks"
+      ON public.tasks FOR UPDATE
+      USING (auth.uid() = user_id)
+      WITH CHECK (auth.uid() = user_id);
+
+    CREATE POLICY "Users can delete their own tasks"
+      ON public.tasks FOR DELETE
+      USING (auth.uid() = user_id);
+    ```
 
 4. Create `.env.local` in the project root with the values of your `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`. The [Supabase documentation](https://supabase.com/docs/guides/getting-started/quickstarts/reactjs#6-declare-supabase-environment-variables) can help you locate these. 
     ```sh

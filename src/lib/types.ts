@@ -5,4 +5,5 @@ export interface Task {
 	status: string;
 	description: string | null;
 	due_date: string | null;
+	tags: string[] | null;
 }

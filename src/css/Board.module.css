@@ -4,6 +4,7 @@ body {
 	background-color: rgba(167, 232, 181, 1);
 }
 
+/* Responsive layout */
 .board[data-layout="row"] > div {
 	width: calc(100% / var(--cols));
 	box-sizing: border-box;
@@ -22,15 +23,16 @@ body {
 }
 
 .board[data-layout="row"] {
-    justify-content: center;
-    flex-direction: row;
+	justify-content: center;
+	flex-direction: row;
 }
 
 .board[data-layout="column"] {
-    flex-direction: column;
-    align-items: center;
+	flex-direction: column;
+	align-items: center;
 }
 
+/* Header */
 .title {
 	text-shadow: 0 2px 4px rgba(0,0,0,0.1);
 	letter-spacing: -0.5px;
@@ -64,6 +66,7 @@ body {
 	flex-wrap: wrap;
 }
 
+/* Loading screen */
 .loading {
 	display: flex;
 	justify-content: center;
@@ -86,6 +89,7 @@ body {
 	}
 }
 
+/* Error screen */
 .error {
 	display: flex;
 	flex-direction: column;
@@ -139,4 +143,38 @@ body {
 
 .retryButton:hover {
 	background: #3da85e;
+}
+
+/* Tag filter */
+.tagFilter {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 0.5rem;
+	padding: 0.75rem 2rem;
+}
+
+.tag {
+	background: rgba(255, 255, 255, 0.5);
+	color: #1e293b;
+	border: 2px solid transparent;
+	border-radius: 999px;
+	padding: 0.25rem 0.75rem;
+	font-size: 0.8125rem;
+	cursor: pointer;
+	transition: background 0.15s, border-color 0.15s;
+}
+
+.tag:hover {
+	background: rgba(255, 255, 255, 0.8);
+}
+
+.tagAll {
+	font-weight: 600;
+}
+
+.tagActive {
+	background: white;
+	border-color: #51c971;
+	font-weight: 600;
 }

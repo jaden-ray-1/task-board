@@ -17,6 +17,7 @@ const defaultCols = [
 	{ id: "in-review", title: "In Review" },
 	{ id: "done", title: "Done" },
 ];
+
 // Find overdue tasks
 function isOverdue(dueDateStr: string): boolean {
 	const due = new Date(dueDateStr + "T00:00:00");
@@ -33,8 +34,22 @@ export default function Board() {
 	const [openPopover, setOpenPopover] = useState<string | null>(null); // Track if a popover is open
 	const [userId, setUserId] = useState<string | null>(null); // User's id as a string
 	const [layout, setLayout] = useState<"row" | "column">("row"); // For setting vertical or horizontal layout based on screen size
+	const [activeTags, setActiveTags] = useState<string[]>([]); // Tag(s) being filtered by
 	const boardRef = useRef<HTMLDivElement>(null); // For responsive board layout
-	
+
+	// Find user's tags
+	const allTags = Array.from(
+		new Set(Object.values(columns).flatMap(cards => cards.flatMap(c => c.tags ?? [])))
+		).sort();
+
+
+	// Filter columns if a tag is active
+	const filteredColumns = activeTags.length > 0 ? Object.fromEntries(
+		Object.entries(columns).map(([status, cards]) => [
+			status,
+			cards.filter(c => activeTags.every(t => (c.tags ?? []).includes(t))),
+		])
+	) : columns;
 
 	// Calculate board summary
 	const totalTasks = Object.values(columns).reduce((sum, arr) => sum + arr.length, 0);
@@ -92,12 +107,12 @@ export default function Board() {
 	}, [moveCard]);
 
 	// Add card to both frontend and backend
-	const handleAddCard = useCallback(async (status: string, title: string, description: string, due_date: string | null) => {
+	const handleAddCard = useCallback(async (status: string, title: string, description: string | null, due_date: string | null, tags: string[]) => {
 		if (!userId) return; // Do nothing if user hasn't been loaded
 		try {
 			// Attempt to add card to the backend
 			const { data, error: insertError } = await getSupabase().from("tasks")
-				.insert({ title, description, status, user_id: userId, due_date })
+				.insert({ title, description, status, user_id: userId, due_date, tags })
 				.select()
 				.single();
 			if (insertError) throw insertError;
@@ -105,7 +120,7 @@ export default function Board() {
 			// Update columns	
 			setColumns(prev => ({
 				...prev,
-				[status]: [...(prev[status] ?? []), { id: data.id, title: data.title, description: data.description, due_date: data.due_date, status }],
+				[status]: [...(prev[status] ?? []), { id: data.id, title: data.title, description: data.description, due_date: data.due_date, tags: data.tags ?? [], status }],
 			}));
 		} catch (e: unknown) {
 			setError(e instanceof Error ? e.message : "An unexpected error occurred");
@@ -139,7 +154,7 @@ export default function Board() {
 				for (const col of defaultCols) {
 					grouped[col.id] = (tasks ?? [])
 						.filter(t => t.status === col.id)
-						.map(t => ({ id: t.id, title: t.title, description: t.description ?? null, status: t.status,  due_date: t.due_date ?? null }));
+						.map(t => ({ id: t.id, title: t.title, description: t.description ?? null, status: t.status, due_date: t.due_date ?? null, tags: t.tags ?? null }));
 				}
 				setColumns(grouped);
 
@@ -195,6 +210,26 @@ export default function Board() {
 				</div>
 			</div>
 
+			{allTags.length > 0 && (
+				<div className={styles.tagFilter}>
+					<button
+						className={`${styles.tag} ${styles.tagAll} ${activeTags.length === 0 ? styles.tagActive : ""}`}
+						onClick={() => setActiveTags([])}>
+						All
+					</button>
+
+					{allTags.map(tag => (
+						<button
+						  key={tag}
+						  className={`${styles.tag} ${activeTags.includes(tag) ? styles.tagActive : ""}`}
+						  onClick={() => setActiveTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag])}>
+						  {tag}
+						</button>
+					))}
+				</div>
+			)}
+
+
 			<div ref={boardRef} className={styles.board} data-layout={layout} style={{ "--cols": defaultCols.length } as React.CSSProperties }>
 				
 				<DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
@@ -203,7 +238,7 @@ export default function Board() {
 							key={col.id}
 							id={col.id}
 							title={col.title}
-							cards={columns[col.id] ?? []}
+							cards={filteredColumns[col.id] ?? []}
 							onAddCard={handleAddCard}
 							isPopoverOpen={openPopover === col.id}
 							onTogglePopover={() => setOpenPopover(prev => prev === col.id ? null : col.id)}

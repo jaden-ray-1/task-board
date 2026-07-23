@@ -57,3 +57,19 @@
 	background: #ffff66;
 	color: #636300;
 }
+
+.tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25rem;
+	margin-top: 0.5rem;
+}
+
+.tag {
+	background: #e2e8f0;
+	color: #475569;
+	padding: 0.125rem 0.5rem;
+	border-radius: 12px;
+	font-size: 0.75rem;
+	line-height: 1.5;
+}
