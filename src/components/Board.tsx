@@ -12,11 +12,18 @@ import styles from "../css/Board.module.css";
  * But that doesn't make sense for now since no option to add or edit columns exists
 */
 const defaultCols = [
-  { id: "todo", title: "To Do" },
-  { id: "in-progress", title: "In Progress" },
-  { id: "in-review", title: "In Review" },
-  { id: "done", title: "Done" },
+	{ id: "todo", title: "To Do" },
+	{ id: "in-progress", title: "In Progress" },
+	{ id: "in-review", title: "In Review" },
+	{ id: "done", title: "Done" },
 ];
+// Find overdue tasks
+function isOverdue(dueDateStr: string): boolean {
+	const due = new Date(dueDateStr + "T00:00:00");
+	const today = new Date();
+	today.setHours(0, 0, 0, 0);
+	return due.getTime() < today.getTime();
+}
 
 export default function Board() {
 	const [activeCard, setActiveCard] = useState<Task | null>(null); // Task being acted upon
@@ -26,8 +33,16 @@ export default function Board() {
 	const [openPopover, setOpenPopover] = useState<string | null>(null); // Track if a popover is open
 	const [userId, setUserId] = useState<string | null>(null); // User's id as a string
 	const [layout, setLayout] = useState<"row" | "column">("row"); // For setting vertical or horizontal layout based on screen size
+	const boardRef = useRef<HTMLDivElement>(null); // For responsive board layout
+	
 
-	const boardRef = useRef<HTMLDivElement>(null);
+	// Calculate board summary
+	const totalTasks = Object.values(columns).reduce((sum, arr) => sum + arr.length, 0);
+	const completedTasks = (columns["done"] ?? []).length;
+	const overdueTasks = Object.entries(columns)
+		.filter(([status]) => status !== "done")
+		.flatMap(([, tasks]) => tasks)
+		.filter(t => t.due_date && isOverdue(t.due_date)).length;
 
 	// Move a card and update columns
 	const moveCard = useCallback((cardId: string, columnFromId: string, columnToId: string) => {
@@ -136,7 +151,6 @@ export default function Board() {
 		})();
 	}, []);
 
-
 	// Decide to render columns vertically or horizontally
 	useEffect(() => {
 		const el = boardRef.current;
@@ -152,7 +166,7 @@ export default function Board() {
 	// Show loading screen if loading
 	if (loading) return (
 		<div className={styles.loading}>
-		<div className={styles.spinner} />
+			<div className={styles.spinner} />
 		</div>
 	);
 	
@@ -170,7 +184,17 @@ export default function Board() {
 	// Show main content
 	return (
 		<>	
-			<h1 className={styles.title}>Guest's Task Board</h1>
+			<div className={styles.header}>
+				<h1 className={styles.title}>Guest's Task Board</h1>
+				<div className={styles.summary}>
+					{totalTasks} {totalTasks === 1 ? "task" : "tasks"}
+					<span className={styles.separator}>·</span>
+					{completedTasks} completed
+					<span className={styles.separator}>·</span>
+					{overdueTasks} overdue
+				</div>
+			</div>
+
 			<div ref={boardRef} className={styles.board} data-layout={layout} style={{ "--cols": defaultCols.length } as React.CSSProperties }>
 				
 				<DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>

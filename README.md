@@ -17,6 +17,8 @@ Desktop | Mobile
     - Tasks due today have their due date highlighted in orange
     - Tasks due before today have their due date highlighted in red
 - Task persistence
+- Board summary
+    - Shows the total number of tasks, the number of completed tasks, and the number of non-completed overdue tasks
 - Responsive layout
     - Columns are displayed horizontally on larger screens in traditional kanban style
     - Columns are displayed vertically on smaller screens to better utilize the limited space

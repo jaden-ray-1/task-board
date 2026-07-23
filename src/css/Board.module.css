@@ -37,7 +37,31 @@ body {
 	text-align: center;
 	color: white;
 	font-size: 2rem;
-	margin: 1rem 0rem -0.5rem 0rem;
+	word-break: break-word;
+	margin: 0rem;
+}
+
+.header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1rem 2rem 0;
+	gap: 0.5rem;
+}
+
+@media (max-width: 800px) {
+	.header {
+		flex-direction: column;
+		align-items: center;
+	}
+}
+
+.summary {
+	font-size: 1.25rem;
+	color: white;
+	display: flex;
+	gap: 0.5rem;
+	flex-wrap: wrap;
 }
 
 .loading {

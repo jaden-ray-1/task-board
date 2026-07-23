@@ -20,8 +20,9 @@ function getDueLabel(dateStr: string): "today" | "tomorrow" | "yesterday" | null
 
 
 export default function Card({ id, status, title, description, due_date }: Task) {
-	const dueLabel = due_date ? getDueLabel(due_date) : null;
-	const { attributes, listeners, setNodeRef } = useDraggable({ id, data: { status } });
+	const dueLabel = status === "done" || !due_date ? null : getDueLabel(due_date); // Set due label if not done and has due date
+	const { attributes, listeners, setNodeRef } = useDraggable({ id, data: { status } }); // Make draggable
+
 	return (
 		<div ref={setNodeRef} className={styles.card} {...listeners} {...attributes}>
 			<div className={styles.titleRow}>

@@ -23,6 +23,7 @@
 .title {
 	margin: 0rem;
 	font-size: 1.125rem;
+	word-break: break-word;
 }
 
 .titleRow {
@@ -30,6 +31,7 @@
 	justify-content: space-between;
 	align-items: center;
 	gap: 0.5rem;
+	min-width: 0;
 }
 
 .dueDate {

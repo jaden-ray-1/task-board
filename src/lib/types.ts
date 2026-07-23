@@ -3,6 +3,6 @@ export interface Task {
 	id: string;
 	title: string;
 	status: string;
-	description: string  | null;
+	description: string | null;
 	due_date: string | null;
 }
