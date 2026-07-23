@@ -2,6 +2,7 @@
 export interface Task {
 	id: string;
 	title: string;
-	description: string;
 	status: string;
+	description: string  | null;
+	due_date: string | null;
 }

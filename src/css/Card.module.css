@@ -16,11 +16,42 @@
 }
 
 .description {
-	margin-bottom: 0rem;
+	margin: 0rem;
 	font-size: 1rem;
 }
 
 .title {
-	margin: 0rem 0rem -1rem 0rem;
+	margin: 0rem;
 	font-size: 1.125rem;
+}
+
+.titleRow {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.dueDate {
+	font-size: 1rem;
+	color: #64748b;
+	white-space: nowrap;
+	border-radius: 8px;
+	padding-left: 0.5rem;
+	padding-right: 0.5rem;
+}
+
+.yesterday {
+	  background: #ff8383;
+	  color: #6e0000;
+}
+
+.today {
+	background: #ffbd55;
+	color: #734600;
+}
+
+.tomorrow {
+	background: #ffff66;
+	color: #636300;
 }

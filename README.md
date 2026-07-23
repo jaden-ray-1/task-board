@@ -9,8 +9,13 @@ Desktop | Mobile
 - Create tasks
     - Title
     - Description (optional)
+    - Due date (optional)
 - Drag and drop cards between columns
     - Automatically creates "To Do", "In Progress", "In Review", and "Done" columns
+- Due date indicator
+    - Tasks due tomorrow have their due date highlighted in yellow
+    - Tasks due today have their due date highlighted in orange
+    - Tasks due before today have their due date highlighted in red
 - Task persistence
 - Responsive layout
     - Columns are displayed horizontally on larger screens in traditional kanban style
@@ -31,7 +36,8 @@ Desktop | Mobile
     | status      | text                        | NO          | 'todo'::text      |
     | user_id     | uuid                        | NO          | auth.uid()        |
     | created_at  | timestamp without time zone | NO          | now()             |
-    | description | text                        | YES         | ''::text          |
+    | description | text                        | YES         | null              |
+    | due_date    | date                        | YES         | null              |
 
     | tablename | policyname                       | permissive | roles    | cmd    | qual                   | with_check             |
     | --------- | -------------------------------- | ---------- | -------- | ------ | ---------------------- | ---------------------- |
@@ -101,5 +107,3 @@ Desktop | Mobile
 ├── index.html               # App entry point
 └── README.md
 ```
-
-

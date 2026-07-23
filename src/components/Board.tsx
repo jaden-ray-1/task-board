@@ -23,6 +23,7 @@ export default function Board() {
 	const [columns, setColumns] = useState<Record<string, Task[]>>({}); // Record of columns using the status as the key
 	const [error, setError] = useState<string | null>(null); // Error string if exists 
 	const [loading, setLoading] = useState(true); // If loading
+	const [openPopover, setOpenPopover] = useState<string | null>(null); // Track if a popover is open
 	const [userId, setUserId] = useState<string | null>(null); // User's id as a string
 	const [layout, setLayout] = useState<"row" | "column">("row"); // For setting vertical or horizontal layout based on screen size
 
@@ -63,7 +64,6 @@ export default function Board() {
 			if (columnFromId === columnToId) return;
 			
 			// Update card optimistically
-			// If there's an error the error screen will mask the incorrect state
 			moveCard(cardId, columnFromId, columnToId);
 			getSupabase().from("tasks").update({ status: columnToId }).eq("id", cardId).then(({ error }) => {
 				if (error) setError(error.message);
@@ -77,12 +77,12 @@ export default function Board() {
 	}, [moveCard]);
 
 	// Add card to both frontend and backend
-	const handleAddCard = useCallback(async (status: string, title: string, description: string) => {
+	const handleAddCard = useCallback(async (status: string, title: string, description: string, due_date: string | null) => {
 		if (!userId) return; // Do nothing if user hasn't been loaded
 		try {
 			// Attempt to add card to the backend
 			const { data, error: insertError } = await getSupabase().from("tasks")
-				.insert({ title, description, status, user_id: userId })
+				.insert({ title, description, status, user_id: userId, due_date })
 				.select()
 				.single();
 			if (insertError) throw insertError;
@@ -90,7 +90,7 @@ export default function Board() {
 			// Update columns	
 			setColumns(prev => ({
 				...prev,
-				[status]: [...(prev[status] ?? []), { id: data.id, title: data.title, description: data.description, status }],
+				[status]: [...(prev[status] ?? []), { id: data.id, title: data.title, description: data.description, due_date: data.due_date, status }],
 			}));
 		} catch (e: unknown) {
 			setError(e instanceof Error ? e.message : "An unexpected error occurred");
@@ -101,8 +101,9 @@ export default function Board() {
 	useEffect(() => {
 		(async () => {
 			try {
-				setLoading(true); // Set loading state
-				getSupabase()
+				setLoading(true);
+				getSupabase();
+
 				// Attempt to restore existing guest session
 				const { data: { session } } = await getSupabase().auth.getSession();
 				if (!session) {
@@ -123,20 +124,20 @@ export default function Board() {
 				for (const col of defaultCols) {
 					grouped[col.id] = (tasks ?? [])
 						.filter(t => t.status === col.id)
-						.map(t => ({ id: t.id, title: t.title, description: t.description, status: t.status }));
+						.map(t => ({ id: t.id, title: t.title, description: t.description ?? null, status: t.status,  due_date: t.due_date ?? null }));
 				}
 				setColumns(grouped);
 
 			} catch (e: unknown) {
 				setError(e instanceof Error ? e.message : "An unexpected error occurred");
 			} finally {
-				setLoading(false); // Reset loading state
+				setLoading(false);
 			}
 		})();
 	}, []);
 
 
-	// Decide to render columns vertically or horizonally
+	// Decide to render columns vertically or horizontally
 	useEffect(() => {
 		const el = boardRef.current;
 		if (!el) return;
@@ -180,6 +181,9 @@ export default function Board() {
 							title={col.title}
 							cards={columns[col.id] ?? []}
 							onAddCard={handleAddCard}
+							isPopoverOpen={openPopover === col.id}
+							onTogglePopover={() => setOpenPopover(prev => prev === col.id ? null : col.id)}
+							onClosePopover={() => setOpenPopover(null)}
 						/>
 					))}
 					<DragOverlay dropAnimation={null}>
